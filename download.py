@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-#
 
+from re import search, sub
+from subprocess import call
+from time import perf_counter
+
 # Author:Jiawei Feng
 # @software: PyCharm
 # @file: download.py
-# @time: 2021/1/25 18:28 
+# @time: 2021/1/25 18:28
 from selenium import webdriver
-from time import perf_counter
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
-from re import search
-from subprocess import call
 
 
 class Downloader:
@@ -34,14 +35,18 @@ class Downloader:
             self.urls = list(filter(lambda x: x, map(lambda x: x.strip(), content)))
 
     def download(self, url, name):
-        call('"{}" /d "{}" /p "{}" /f "{}" /n'.format(self.idman_exe, url, self.download_repo, name))
+        call('"{}" /d "{}" /p "{}" /f "{}" /n /a'.format(self.idman_exe, url, self.download_repo, name))
+        call([self.idman_exe, '/d', ])
 
+    def format_name(self, name):
+        banned_symbols = ['?', '/', r'\\', ':', '*', '"', '<', '>', '|']
+        return sub('|'.join(list(map(lambda x: '[{}]'.format(x), banned_symbols))), '', name)
 
     def main(self):
         for url in tqdm(self.urls):
             try:
                 convert_url, name = self.get_video_url_and_name(url)
-                self.download(convert_url, name)
+                self.download(convert_url, self.format_name(name))
             except:
                 pass
         self.browser.quit()
